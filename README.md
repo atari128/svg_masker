@@ -2,7 +2,9 @@
 
 ## TLDR
 
+![Demo image](demo.jpg)
 Use a black and white jpeg file as a mask for another jpeg
+
 
 ## Overview
 
