@@ -1,94 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Masker v2</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        .lang-selector {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        h1 {
+            color: #1c1e21;
+        }
+
+        .card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .file-inputs {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: space-between;
+        }
+
+        .file-input {
+            flex: 1;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .preview-area {
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .preview-area img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .download-btn {
+            margin-top: 1rem;
+        }
+
+        .options-wrapper {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .options-wrapper input {
+            margin-right: 0.5rem;
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Masked jpg inside SVG</h1>
-  <div style="border: 1px solid grey; margin: 1em; padding: 0.5em; width: fit-content;">Embed a jpeg image inside SVG with another jpeg as opacity mask. The mask needs to be black and white where white is the visible part. Both images should be of the same aspect ratio.</div>
+    <div class="container">
+        <header>
+            <div class="lang-selector">
+                <select id="languageSelector">
+                    <option value="en">English</option>
+                    <option value="et">Eesti</option>
+                </select>
+            </div>
+            <h1 data-translate="title">SVG Masker</h1>
+            <p data-translate="subtitle">Embed a JPG image and its mask into a single SVG file.</p>
+        </header>
+        <main>
+            <div class="card">
+                <h2 data-translate="selectImagesTitle">1. Select Your Images</h2>
+                <div class="file-inputs">
+                    <div class="file-input">
+                        <label for="inputImage" data-translate="imageLabel">Image (JPG)</label>
+                        <input id="inputImage" type="file" accept="image/jpeg">
+                    </div>
+                    <div class="file-input">
+                        <label for="inputMask" data-translate="maskLabel">Mask (JPG)</label>
+                        <input id="inputMask" type="file" accept="image/jpeg">
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2 data-translate="generateTitle">2. Generate Preview</h2>
+                <button id="generateBtn" data-translate="generateBtn">Generate</button>
+                <div class="options-wrapper">
+                    <input type="checkbox" id="responsive-checkbox" checked>
+                    <label for="responsive-checkbox" data-translate="responsiveLabel">Make output responsive (100% width/height)</label>
+                </div>
+            </div>
+            <div class="card">
+                <h2 data-translate="previewTitle">3. Preview & Download</h2>
+                <div id="preview" class="preview-area">
+                    <p data-translate="previewPlaceholder">Your generated SVG will be displayed here.</p>
+                </div>
+                <button id="downloadBtn" data-translate="downloadBtn" class="download-btn" disabled>Download</button>
+            </div>
+        </main>
+    </div>
+    <script>
+        const translations = {
+            en: {
+                title: "SVG Masker",
+                subtitle: "Embed a JPG image and its mask into a single SVG file.",
+                selectImagesTitle: "1. Select Your Images",
+                imageLabel: "Image (JPG)",
+                maskLabel: "Mask (JPG)",
+                generateTitle: "2. Generate Preview",
+                generateBtn: "Generate",
+                responsiveLabel: "Make output responsive (100% width/height)",
+                previewTitle: "3. Preview & Download",
+                downloadBtn: "Download",
+                previewPlaceholder: "Your generated SVG will be displayed here.",
+                alertFileSelect: "Please select both an image and a mask file.",
+                alertError: "An error occurred while generating the SVG. Please check the console for details.",
+                alertNoSvg: "No SVG has been generated to download."
+            },
+            et: {
+                title: "SVG Masker",
+                subtitle: "Manusta JPG-pilt ja selle mask ühte SVG-faili.",
+                selectImagesTitle: "1. Vali oma pildid",
+                imageLabel: "Pilt (JPG)",
+                maskLabel: "Mask (JPG)",
+                generateTitle: "2. Genereeri eelvaade",
+                generateBtn: "Genereeri",
+                responsiveLabel: "Muuda väljund reageerivaks (100% laius/kõrgus)",
+                previewTitle: "3. Eelvaade & allalaadimine",
+                downloadBtn: "Lae alla",
+                previewPlaceholder: "Sinu genereeritud SVG kuvatakse siin.",
+                alertFileSelect: "Palun vali nii pilt kui ka maskifail.",
+                alertError: "SVG genereerimisel tekkis viga. Palun kontrolli konsooli lisateabe saamiseks.",
+                alertNoSvg: "Allalaadimiseks pole SVG-d genereeritud."
+            }
+        };
 
-  <label for="inputImage">Image</label>
-  <input id="inputImage" type="file" />
-  <label for="inputMask">Mask</label>
-  <input id="inputMask" type="file" />
-  <button onclick="makeSVG();">Ok</button>
-  <div id="imgTest"></div>
-  </svg>
-</body>
-<script>
-  // capture the image from input file
+        let currentLanguage = 'en';
+        let currentSvgUrl = null; // Stores the URL of the generated SVG
 
-  // turn it in to base 64
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
 
-  // create svg with mask and image
+        document.getElementById('languageSelector').addEventListener('change', (event) => {
+            setLanguage(event.target.value);
+        });
+        
+        setLanguage(currentLanguage);
 
-  const svg1 = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        function downloadSVG() {
+            if (currentSvgUrl) {
+                const a = document.createElement('a');
+                a.href = currentSvgUrl;
+                a.download = 'masked_image.svg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert(translations[currentLanguage].alertNoSvg);
+            }
+        }
+
+        document.getElementById('generateBtn').addEventListener('click', makeSVG);
+        document.getElementById('downloadBtn').addEventListener('click', downloadSVG);
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function makeSVG() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            const preview = document.getElementById('preview');
+            
+            downloadBtn.disabled = true; // Disable button during generation
+            currentSvgUrl = null;
+
+            const imageFile = document.getElementById('inputImage').files[0];
+            const maskFile = document.getElementById('inputMask').files[0];
+
+            if (!imageFile || !maskFile) {
+                alert(translations[currentLanguage].alertFileSelect);
+                return;
+            }
+
+            try {
+                const [imageBase64, maskBase64] = await Promise.all([
+                    readFileAsBase64(imageFile),
+                    readFileAsBase64(maskFile)
+                ]);
+
+                const getImageDimensions = (src) => {
+                    return new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+                        img.onerror = reject;
+                        img.src = src;
+                    });
+                };
+
+                const { width, height } = await getImageDimensions(imageBase64);
+
+                const isResponsive = document.getElementById('responsive-checkbox').checked;
+                const svgWidth = isResponsive ? '100%' : width;
+                const svgHeight = isResponsive ? '100%' : height;
+
+                const svgContent = `
+<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
     <defs>
-      <!-- mask -->
-      <mask id="svg_mask" maskUnits='userSpaceOnUse' maskContentUnits='userSpaceOnUse' >
-        <image width="100%" height="100%" href="`;
-
-  const svg2 = `" />
-      </mask>
+        <mask id="svg_mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" style="mask-type:luminance">
+            <image href="${maskBase64}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" />
+        </mask>
     </defs>
-    <!-- Image -->
-    <image mask="url(#svg_mask)" width="100%" height="100%" href="`;
-  const svg3 = `" />
-  </svg>
-`;
+    <image mask="url(#svg_mask)" href="${imageBase64}" width="${width}" height="${height}" />
+</svg>`;
 
-  function reafFile(file) {
-    return new Promise(function (resolve, reject) {
-      let fr = new FileReader(); 
+                const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+                
+                if (currentSvgUrl) {
+                    URL.revokeObjectURL(currentSvgUrl);
+                }
+                
+                currentSvgUrl = URL.createObjectURL(svgBlob);
 
-      fr.onload = function (fileLoadedEvent) {
-        let srcData = fileLoadedEvent.target.result;
-        resolve(srcData);
-      };
+                preview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = currentSvgUrl;
+                preview.appendChild(img);
 
-      fr.onerror = function () {
-        reject(fr)
-      };
+                downloadBtn.disabled = false;
 
-      fr.readAsDataURL(file); 
-    });
-  }
-
-  function makeSVG() {
-    const imageFile = document.getElementById("inputImage").files;
-    const maskFile = document.getElementById("inputMask").files;
-
-    if (imageFile.length > 0 && maskFile.length > 0) {
-      const image = imageFile[0];
-      const mask = maskFile[0];
-      let files = [image, mask];
-      let readers = [];
-
-      for(let i = 0;i < files.length;i++){
-        readers.push(reafFile(files[i]));
-      }
-
-      Promise.all(readers).then((values) => {
-        const svg = svg1 + values[1] + svg2 + values[0] + svg3;
-        console.log(svg)
-
-        let img = document.createElement("img");
-        img.src = "data:image/svg+xml;base64," + btoa(svg);
-        document.getElementById("imgTest").innerHTML = img;
-
-
-        const a = document.body.appendChild( document.createElement("a"));
-        a.download = "export.svg";
-        a.href = "data:image/svg+xml;base64," + btoa(svg);
-        a.click();
-      });
-    }
-  }
-
-</script>
-
+            } catch (error) {
+                console.error("Error generating SVG:", error);
+                alert(translations[currentLanguage].alertError);
+            }
+        }
+    </script>
+</body>
 </html>
