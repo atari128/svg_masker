@@ -1,5 +1,15 @@
 # SVG Masker
 
+<<<<<<< HEAD
+=======
+## TLDR
+
+![Demo image](demo.jpg)
+
+Use a black and white jpeg image as a mask for another jpeg and save it as SVG
+
+
+>>>>>>> 3cab7006452fe068337a6a920886a39220c3c4ee
 ## Overview
 
 SVG Masker is a simple, client-side web application that allows you to apply a mask to an image and export the result as a scalable vector graphic (SVG) file. It's a simple way of embedding two jpeg images inside a single SVG as a smaller alternative to a PNG with aplha channel.
