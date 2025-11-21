@@ -3,7 +3,8 @@
 ## TLDR
 
 ![Demo image](demo.jpg)
-Use a black and white jpeg file as a mask for another jpeg
+
+Use a black and white jpeg image as a mask for another jpeg and save it as SVG
 
 
 ## Overview
