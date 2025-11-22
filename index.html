@@ -43,6 +43,12 @@
             color: #1c1e21;
         }
 
+        .subtitle-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .card {
             background: #f9f9f9;
             border: 1px solid #ddd;
@@ -127,6 +133,29 @@
         .options-wrapper input {
             margin-right: 0.5rem;
         }
+        .accordion-content {
+            display: none;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .accordion-toggle {
+            cursor: pointer;
+            font-size: 0.8rem; /* Smaller font size for the question mark */
+            width: 1.2em; /* Ensure it's square */
+            height: 1.2em; /* Ensure it's square */
+            line-height: 1.2em; /* Center text vertically */
+            text-align: center; /* Center text horizontally */
+            border: 1px solid #007bff; /* 1px border */
+            border-radius: 50%; /* Make it a circle */
+            margin-left: 0.5rem;
+            color: #007bff;
+            display: inline-block; /* Allow width/height and vertical alignment */
+        }
     </style>
 </head>
 <body>
@@ -139,7 +168,13 @@
                 </select>
             </div>
             <h1 data-translate="title">SVG Masker</h1>
-            <p data-translate="subtitle">Embed a JPG image and its mask into a single SVG file.</p>
+            <div class="subtitle-wrapper">
+                <p data-translate="subtitle">Embed a JPG image and its mask into a single SVG file.</p>
+                <span class="accordion-toggle">?</span>
+            </div>
+            <div class="accordion-content">
+                <img src="demo.jpg" alt="Demo Image" style="max-width: 100%; height: auto;">
+            </div>
         </header>
         <main>
             <div class="card">
@@ -210,6 +245,11 @@
 
         let currentLanguage = 'en';
         let currentSvgUrl = null; // Stores the URL of the generated SVG
+
+        document.querySelector('.accordion-toggle').addEventListener('click', () => {
+            const accordionContent = document.querySelector('.accordion-content');
+            accordionContent.classList.toggle('active');
+        });
 
         function setLanguage(lang) {
             currentLanguage = lang;
